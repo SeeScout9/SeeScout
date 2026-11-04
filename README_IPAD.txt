@@ -1,14 +1,9 @@
-SEESCOUT 2.1 WORLD – iPad-Anleitung
+SEE SCOUT 3.0 – iPad-Anleitung
 
 1. ZIP in der Dateien-App entpacken.
-2. Altes GitHub-Repository zuerst sichern.
-3. Alle Dateien aus dem Ordner SeeScout_2_0 ins Hauptverzeichnis hochladen und gleichnamige Dateien ersetzen.
-4. Änderungen committen und unter Actions auf erfolgreichen Pages-Deploy warten.
-5. Website in Safari mit ?v=21 am Ende öffnen.
+2. Alle Dateien aus dem Ordner SeeScout_3_0_Weltweit ins Hauptverzeichnis deines GitHub-Repositories hochladen und gleichnamige Dateien ersetzen.
+3. Änderungen committen und auf den grünen GitHub Pages Deploy warten.
+4. Website in Safari mit ?v=30 öffnen.
+5. Für Konto und Synchronisierung zuerst SETUP_KONTO.txt lesen.
 
-Neu: Weltkarte und weltweite Orts-/Gewässersuche. Ein Suchtreffer ist nur eine Ortsmarkierung, keine Bestätigung, dass dort gefischt werden darf oder welche Fische vorkommen.
-Fischbestände, Angelrecht, Bewilligungen, Schonzeiten und sichere Zugänge müssen vor Ort amtlich geprüft werden.
-Fangbuch/Community-Demo speichern lokal. Echter KI-Chat, Konten, Cloud-Synchronisierung und Fotoerkennung benötigen später einen Server.
-
-
-NEU in Version 2.2: Suche einen Ort auf der Karte. Tippe danach im Bereich „Gewässer-Check“ auf „Fischarten & Regeln prüfen“. Der Fisch-Check zeigt wissenschaftlich erfasste Beobachtungen aus GBIF. Das Angelrecht wird nicht automatisch bestätigt: Öffne den Link zu den offiziellen Regeln und prüfe die Vorschriften, bevor du angelst.
+Die weltweite Suche findet Orte, bestätigt aber keine Angelrechte. Fischaktivität ist eine illustrative Schätzung. Fotoerkennung ist noch nicht verbunden.

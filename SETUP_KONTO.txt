@@ -1,0 +1,24 @@
+SEESCOUT 3.0 – EINRICHTUNG VON KONTO UND SYNCHRONISIERUNG
+
+WICHTIG
+Die Kontofunktion ist vorbereitet, aber noch nicht aktiv, bis ein Supabase-Projekt eingerichtet und config.js ausgefüllt wurde. Bitte lass dir bei der Einrichtung von einem Elternteil oder einer erwachsenen Vertrauensperson helfen. Teile niemals dein Passwort oder geheime Schlüssel im Chat.
+
+1. Erstelle mit Unterstützung eines Erwachsenen ein Projekt bei https://supabase.com/
+2. Öffne im Supabase-Projekt Project Settings > API.
+3. Kopiere die Project URL und den öffentlichen anon/publishable key.
+4. Öffne in diesem ZIP die Datei config.js und trage beide Werte ein.
+   Nur die öffentliche anon/publishable key verwenden. NIEMALS service_role key verwenden.
+5. Öffne in Supabase den SQL Editor und führe den Inhalt von supabase.sql aus.
+6. Lade alle Dateien aus diesem ZIP erneut ins Hauptverzeichnis deines GitHub-Repositories hoch und ersetze gleichnamige Dateien.
+7. Warte auf den grünen GitHub Pages Deploy und öffne die Website mit ?v=30.
+
+Konto verwenden
+- E-Mail und Passwort eingeben und „Konto erstellen“ drücken.
+- Je nach Supabase-Einstellung muss die E-Mail bestätigt werden.
+- Danach auf iPad und Handy mit demselben Konto anmelden.
+- Auf jedem Gerät „Meine Daten synchronisieren“ drücken.
+
+HINWEISE
+- Fotos werden in dieser Version nur lokal als Vorschau angezeigt; automatische Fisch-Erkennung ist noch nicht angeschlossen.
+- Die Aktivitätskurve ist eine illustrative Schätzung, keine echte ortsbezogene Messung.
+- Bei Fragen zu Supabase-Einstellungen bitte Screenshots ohne Schlüssel, E-Mail-Adressen oder persönliche Daten teilen.

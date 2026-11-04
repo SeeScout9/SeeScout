@@ -11,7 +11,53 @@ $("fishList").innerHTML=Object.keys(fish).map(f=>`<article data-fish="${f}">${fi
 function initMap(){if(map||!window.L){$("mapbox").textContent="Kartenbibliothek lädt nicht. Internetverbindung prüfen.";return} $("mapbox").innerHTML="";map=L.map("mapbox").setView([20,0],2);L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"© OpenStreetMap contributors"}).addTo(map);drawMap()}
 let userMarkers=[];
 function drawMap(){if(!map)return;map.eachLayer(l=>{if(l instanceof L.Marker)map.removeLayer(l)});let q=$("search").value.toLowerCase(),f=$("filter").value;waters.filter(w=>(!f||w[4].includes(f))&&(!q||w[0].toLowerCase().includes(q)||w[1].toLowerCase().includes(q))).forEach(w=>L.marker([w[2],w[3]]).addTo(map).bindPopup(`<b>${w[0]}</b><br>${w[4].join(", ")}<br><small>Nur regionaler Beispiel-Pin, kein bestätigter Spot.</small>`));userMarkers.forEach(m=>L.marker([m.lat,m.lon]).addTo(map).bindPopup(`<b>${m.name}</b><br><small>Von dir gesuchter Ort. Fischbestand, Angelrecht und Zugang nicht geprüft.</small>`))}
-async function globalSearch(){let q=$("search").value.trim();if(!q)return toast("Bitte einen Ort oder ein Gewässer eingeben.");$("globalResults").innerHTML="<p class='muted'>Suche weltweit …</p>";try{let url="https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&q="+encodeURIComponent(q);let res=await fetch(url,{headers:{"Accept-Language":"de"}});if(!res.ok)throw new Error("Suche nicht verfügbar");let data=await res.json();if(!data.length){$("globalResults").innerHTML="<p>Keine Treffer gefunden.</p>";return}$("globalResults").innerHTML=data.map((r,i)=>`<article><b>${String(r.display_name).replace(/[<>]/g,"")}</b><p><button type="button" data-global="${i}">Auf Karte zeigen</button></p></article>`).join("");document.querySelectorAll("[data-global]").forEach(b=>b.onclick=()=>{let r=data[+b.dataset.global],lat=Number(r.lat),lon=Number(r.lon);if(!Number.isFinite(lat)||!Number.isFinite(lon))return;let placeName=String(r.name||r.display_name).replace(/[<>]/g,"");userMarkers.push({lat,lon,name:placeName});$("checkName").value=String(r.display_name).replace(/[<>]/g,"");$("checkLat").value=lat;$("checkLon").value=lon;map.setView([lat,lon],13);drawMap();toast("Ort markiert – du kannst jetzt den Gewässer-Check starten.")})}catch(e){$("globalResults").innerHTML="<p>Die weltweite Ortssuche braucht Internet. Bitte später nochmals versuchen.</p>"}}
+async function globalSearch(){
+ let q=$("search").value.trim();
+ if(!q)return toast("Bitte einen Ort oder ein Gewässer eingeben.");
+ $("globalResults").innerHTML="<p class='muted'>Suche weltweit …</p>";
+ try{
+  let data=[];
+  // Open-Meteo geocoding supports worldwide place-name searches and browser requests.
+  const om=await fetch("https://geocoding-api.open-meteo.com/v1/search?count=8&language=de&format=json&name="+encodeURIComponent(q));
+  if(om.ok){
+   const j=await om.json();
+   data=(j.results||[]).map(r=>({
+    lat:String(r.latitude),lon:String(r.longitude),
+    name:[r.name,r.admin1,r.country].filter(Boolean).join(", "),
+    display_name:[r.name,r.admin1,r.country].filter(Boolean).join(", ")
+   }));
+  }
+  // Also query OpenStreetMap so lakes, rivers and other named features can be found,
+  // not just settlements returned by the place-name geocoder.
+  try{
+   const n=await fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=8&q="+encodeURIComponent(q),{headers:{"Accept-Language":"de"}});
+   if(n.ok){
+    const osm=await n.json();
+    const known=new Set(data.map(r=>`${Number(r.lat).toFixed(4)},${Number(r.lon).toFixed(4)}`));
+    osm.forEach(r=>{
+     const key=`${Number(r.lat).toFixed(4)},${Number(r.lon).toFixed(4)}`;
+     if(!known.has(key)){data.push(r);known.add(key);}
+    });
+   }
+  }catch(_e){/* Keep any successful Open-Meteo results. */}
+  data=data.slice(0,10);
+  if(!data.length){$("globalResults").innerHTML="<p>Keine Treffer gefunden. Bitte einen genaueren Orts- oder Gewässernamen eingeben.</p>";return;}
+  $("globalResults").innerHTML=data.map((r,i)=>`<article><b>${String(r.display_name||r.name||"Treffer").replace(/[<>]/g,"")}</b><p><button type="button" data-global="${i}">Auf Karte zeigen</button></p></article>`).join("");
+  document.querySelectorAll("[data-global]").forEach(b=>b.onclick=()=>{
+   let r=data[+b.dataset.global],lat=Number(r.lat),lon=Number(r.lon);
+   if(!Number.isFinite(lat)||!Number.isFinite(lon))return;
+   let placeName=String(r.name||r.display_name).replace(/[<>]/g,"");
+   userMarkers.push({lat,lon,name:placeName});
+   $("checkName").value=String(r.display_name||r.name).replace(/[<>]/g,"");
+   $("checkLat").value=lat;$("checkLon").value=lon;
+   if(!map)initMap();
+   if(map){map.setView([lat,lon],12);drawMap();}
+   toast("Ort markiert. Fischbestand und Angelrecht bitte separat prüfen.");
+  });
+ }catch(e){
+  $("globalResults").innerHTML="<p>Die weltweite Suche konnte nicht geladen werden. Prüfe die Internetverbindung und versuche es erneut.</p>";
+ }
+}
 $("globalSearch").onclick=globalSearch;
 
 // Gewässer-Check: GBIF-Beobachtungen sind Hinweise auf dokumentierte Vorkommen,
@@ -41,3 +87,70 @@ $("postForm").onsubmit=e=>{e.preventDefault();let t=$("postText").value.trim();i
 $("chatForm").onsubmit=e=>{e.preventDefault();let q=$("question").value.trim();if(!q)return;$("chat").innerHTML+=`<p><b>Du:</b> ${q.replace(/[<>]/g,"")}</p><p><b>SeeScout:</b> Ich bin die lokale Demo. Ich kann allgemeine Hinweise geben: Zielfisch wählen, offizielle Regeln prüfen und Köder an Gewässer und Methode anpassen. Für echte KI-Antworten braucht es später einen sicheren Server.</p>`;$("question").value=""};
 function updateStats(){$("countCatch").textContent=read("catches").length;$("countSaved").textContent=read("saved").length;$("countPlans").textContent=read("plans").length}updateStats();
 if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+
+// SeeScout 3.0: activity estimate, photo preview, and optional Supabase account sync.
+const activityProfiles={
+ "Egli":[45,60,72,55,35,30,48,68,82,70,52,40],
+ "Hecht":[35,45,62,70,55,35,30,42,65,78,60,45],
+ "Felchen":[30,45,60,55,40,35,48,62,70,58,42,30],
+ "Forelle":[55,70,62,45,30,28,42,60,75,65,48,40],
+ "Seeforelle":[35,45,58,62,50,35,40,55,68,60,45,32],
+ "Zander":[35,50,68,75,55,30,25,45,72,85,60,40],
+ "Alet":[45,55,62,50,40,35,45,55,60,52,45,38],
+ "Barbe":[40,50,62,55,45,35,42,55,65,58,45,35]
+};
+$("makeActivity").onclick=()=>{
+ const place=$("activityPlace").value.trim(),fishName=$("activityFish").value,season=$("activitySeason").value;
+ if(!place){toast("Bitte zuerst einen Ort eingeben.");return;}
+ const base=activityProfiles[fishName]||activityProfiles.Egli;
+ const seasonFactor={spring:1.0,summer:0.92,autumn:1.04,winter:0.72}[season];
+ const labels=["00","02","04","06","08","10","12","14","16","18","20","22"];
+ const vals=base.map((v,i)=>Math.max(8,Math.min(95,Math.round(v*seasonFactor + ((i%3)-1)*3))));
+ $("activityResult").innerHTML=`<h3>${fishName} – ${place.replace(/[<>]/g,"")}</h3><div id="activityBars">${vals.map((v,i)=>`<div class="activity-col"><span class="activity-score">${v}%</span><div class="activity-bar" style="height:${v}%"></div><small>${labels[i]} h</small></div>`).join("")}</div><p class="note">Illustrative Aktivitätsschätzung anhand allgemeiner Tages- und Saisonmuster. Keine Messdaten für diesen Ort, keine Wetter-/Wassertemperaturmessung und keine Fanggarantie. Lokale Fischbestände und Regeln separat prüfen.</p>`;
+};
+$("fishPhoto").onchange=()=>{
+ const f=$("fishPhoto").files&&$("fishPhoto").files[0];if(!f)return;
+ if(!f.type.startsWith("image/")){toast("Bitte eine Bilddatei auswählen.");return;}
+ const url=URL.createObjectURL(f);$("fishPhotoPreview").src=url;$("fishPhotoPreview").style.display="block";
+ $("photoResult").innerHTML="<p><b>Foto geladen.</b> Die automatische Fisch-Erkennung ist noch nicht verbunden. Dieses Foto wurde nicht an einen Erkennungsdienst gesendet.</p>";
+};
+
+// Supabase setup is optional. The public anon key belongs in config.js; never put a service-role key in the app.
+const ssConfig=window.SEESCOUT_CONFIG||{};
+let ssClient=null;
+function accountMessage(msg){$("accountStatus").textContent=msg;}
+function initAccount(){
+ if(!window.supabase||!ssConfig.url||!ssConfig.anonKey||ssConfig.url.includes("DEINE_")||ssConfig.anonKey.includes("DEIN_")){
+  accountMessage("Noch nicht eingerichtet. Für echte Anmeldung und Synchronisierung zuerst die Schritte in SETUP_KONTO.txt ausführen.");return;
+ }
+ try{
+  ssClient=window.supabase.createClient(ssConfig.url,ssConfig.anonKey);
+  ssClient.auth.getSession().then(({data})=>accountMessage(data.session?"Angemeldet: "+data.session.user.email:"Noch nicht angemeldet."));
+  ssClient.auth.onAuthStateChange((_event,session)=>accountMessage(session?"Angemeldet: "+session.user.email:"Nicht angemeldet."));
+ }catch(e){accountMessage("Kontodienst konnte nicht gestartet werden. Konfiguration prüfen.");}
+}
+async function authAction(mode){
+ if(!ssClient){accountMessage("Kontodienst noch nicht eingerichtet. Bitte SETUP_KONTO.txt beachten.");return;}
+ const email=$("authEmail").value.trim(),password=$("authPassword").value;
+ if(!email||password.length<8){accountMessage("Bitte E-Mail und ein Passwort mit mindestens 8 Zeichen eingeben.");return;}
+ const result=mode==="signup"?await ssClient.auth.signUp({email,password}):await ssClient.auth.signInWithPassword({email,password});
+ if(result.error){accountMessage("Anmeldung fehlgeschlagen: "+result.error.message);return;}
+ accountMessage(mode==="signup"?"Konto erstellt. Falls E-Mail-Bestätigung aktiviert ist, bitte Postfach prüfen.":"Erfolgreich angemeldet.");
+}
+$("signupForm").onsubmit=async e=>{e.preventDefault();await authAction("signup");};
+$("loginBtn").onclick=()=>authAction("login");
+$("logoutBtn").onclick=async()=>{if(!ssClient){accountMessage("Kontodienst noch nicht eingerichtet.");return;}const r=await ssClient.auth.signOut();accountMessage(r.error?r.error.message:"Abgemeldet.");};
+$("syncBtn").onclick=async()=>{
+ if(!ssClient){accountMessage("Kontodienst noch nicht eingerichtet.");return;}
+ const {data:{user}}=await ssClient.auth.getUser();if(!user){accountMessage("Bitte zuerst anmelden.");return;}
+ const payload={catches:read("catches"),posts:read("posts"),plans:read("plans"),saved:read("saved")};
+ const r=await ssClient.from("user_data").upsert({user_id:user.id,data:payload,updated_at:new Date().toISOString()},{onConflict:"user_id"});
+ if(r.error){accountMessage("Synchronisierung fehlgeschlagen: "+r.error.message);return;}
+ const fetched=await ssClient.from("user_data").select("data").eq("user_id",user.id).maybeSingle();
+ if(!fetched.error&&fetched.data&&fetched.data.data){
+  Object.entries(fetched.data.data).forEach(([k,v])=>save(k,v));
+  renderCatches();renderPosts();updateStats();
+ }
+ accountMessage("Synchronisierung abgeschlossen. Auf dem zweiten Gerät mit demselben Konto anmelden und ebenfalls synchronisieren.");
+};
+initAccount();
