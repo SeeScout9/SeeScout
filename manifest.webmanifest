@@ -1,11 +1,11 @@
 {
-  "name": "SeeScout",
+  "name": "SeeScout 2.0",
   "short_name": "SeeScout",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#0b1714",
-  "theme_color": "#0b1714",
-  "lang": "de-CH",
+  "background_color": "#071b22",
+  "theme_color": "#071b22",
   "icons": [
     {
       "src": "icon-192.png",
