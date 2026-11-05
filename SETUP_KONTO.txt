@@ -1,0 +1,7 @@
+OPTIONALES KONTO / CLOUD-SYNC
+
+Die Basis-App funktioniert ohne Konto und speichert Köderkoffer, Fangtagebuch, Stopps und Demo-Beiträge lokal im Browser.
+
+Für echte Benutzerkonten und geräteübergreifende Synchronisierung ist eine eigene Supabase-Einrichtung und zusätzlicher Integrationscode erforderlich. Die aktuelle Version enthält nur Konfigurations-Platzhalter und SQL-Grundlage; sie behauptet nicht, dass Login/Synchronisierung bereits fertig aktiviert sind.
+
+Niemals einen service_role-Schlüssel in eine Website oder in config.js kopieren. Nur öffentliche anon/publishable Schlüssel sind für Client-Apps vorgesehen. Externe Konten am besten mit einer erwachsenen Vertrauensperson einrichten.

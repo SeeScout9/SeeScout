@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f4f8f6">
+  <meta name="description" content="SeeScout – dein weltweiter Angelbegleiter.">
+  <title>SeeScout – Smart Fishing</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon-192.png">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><div class="brand-mark">S</div><div><b>SeeScout</b><small>SMART FISHING</small></div></div>
+      <div class="world-pill">🌍 Weltweit verfügbar</div>
+      <nav id="navigation">
+        <button class="nav-item active" data-target="karte">🗺️ <span>Karte</span></button>
+        <button class="nav-item" data-target="koeder">🎣 <span>Köder-Empfehlung</span></button>
+        <button class="nav-item" data-target="heatmap">🔥 <span>Heatmap</span></button>
+        <button class="nav-item" data-target="zeit">🕒 <span>Beste Angelzeit</span></button>
+        <button class="nav-item" data-target="koffer">🧰 <span>Köderkoffer</span></button>
+        <button class="nav-item" data-target="tagebuch">📓 <span>Fangtagebuch</span></button>
+        <button class="nav-item" data-target="planung">🧭 <span>Routenplaner</span></button>
+        <button class="nav-item" data-target="community">💬 <span>Community</span></button>
+        <button class="nav-item" data-target="konto">⚙️ <span>Konto & Einstellungen</span></button>
+      </nav>
+      <div class="sidebar-bottom"><span class="status-dot"></span> Deine Angelzentrale</div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div><p class="eyebrow">DEIN ANGELTAG BEGINNT HIER</p><h1>Hallo, Angler! <span>👋</span></h1><p class="subtle">Entdecke Gewässer, plane deinen Ausflug und finde den passenden Köder.</p></div>
+        <div class="top-actions"><div class="weather-chip">☀️ <span id="topWeather">Wetter wird geladen …</span></div><button class="primary" id="locateBtn">◎ Mein Standort</button></div>
+      </header>
+
+      <section class="view active" id="view-karte">
+        <div class="search-row"><input id="placeSearch" placeholder="Ort, See oder Gewässer weltweit suchen …"><button class="primary" id="searchBtn">Suchen</button></div>
+        <div class="dashboard-grid">
+          <article class="panel map-panel"><div class="panel-head"><div><h2>Angelkarte</h2><p>Suche Gewässer auf der ganzen Welt</p></div><span class="tag">LIVE-KARTE</span></div><div id="map"></div><div class="map-foot"><span>📍 <b id="selectedPlace">Wähle einen Ort auf der Karte</b></span><span id="mapStatus">Karte bereit</span></div></article>
+          <div class="stack">
+            <article class="panel weather-card"><div class="panel-head"><div><h2>Wetter am Angelplatz</h2><p>Aktuelle Daten, sofern verfügbar</p></div><span class="weather-icon">🌤️</span></div><div class="weather-main"><strong id="temperature">—°</strong><span id="weatherDesc">Ort auswählen</span></div><div class="weather-stats"><span>💨 Wind <b id="wind">—</b></span><span>💧 Regen <b id="rain">—</b></span></div></article>
+            <article class="panel mini-card"><div class="panel-head"><div><h2>Dein Angel-Quickcheck</h2><p>Ein guter Start für deine Planung</p></div>🎯</div><div class="quick-list"><span>✓ Wetter prüfen</span><span>✓ Regeln vor Ort kontrollieren</span><span>✓ Ausrüstung vorbereiten</span></div></article>
+          </div>
+        </div>
+        <div class="three-grid">
+          <article class="panel"><h3>🐟 Fischbeobachtungen</h3><p class="subtle">Wissenschaftliche Beobachtungen aus der GBIF-Datenbank. Sie bestätigen nicht, dass Fische heute dort beissen.</p><div id="fishObservations" class="info-result">Wähle zuerst einen Ort.</div></article>
+          <article class="panel"><h3>🌊 Gewässer-Info</h3><p class="subtle">Tiefe, Uferzugang und lokale Regeln sind nur verlässlich, wenn dafür geprüfte Daten vorliegen.</p><div class="notice">ℹ️ Prüfe Beschilderung und offizielle lokale Vorschriften, bevor du angelst.</div></article>
+          <article class="panel"><h3>🧭 Angel-Checkliste</h3><label class="check"><input type="checkbox"> Erlaubnis / Lizenz geprüft</label><label class="check"><input type="checkbox"> Schonzeiten und Mindestmasse geprüft</label><label class="check"><input type="checkbox"> Wetter und Sicherheit geprüft</label></article>
+        </div>
+      </section>
+
+      <section class="view" id="view-koeder">
+        <div class="section-title"><p class="eyebrow">SMART FISHING</p><h2>Finde einen passenden Köder</h2><p class="subtle">Die Vorschläge sind allgemeine Richtwerte und müssen an Gewässer und Regeln angepasst werden.</p></div>
+        <article class="panel form-panel"><div class="form-grid">
+          <label Zielfisch<select id="targetFish"><option value="Egli">Egli / Barsch</option><option value="Hecht">Hecht</option><option value="Zander">Zander</option><option value="Forelle">Forelle</option><option value="Karpfen">Karpfen</option></select></label>
+          <label Angelmethode<select id="method"><option>Spinnfischen</option><option>Grundangeln</option><option>Posenangeln</option><option>Fliegenfischen</option></select></label>
+          <label Wasser<select id="clarity"><option value="klar">Klar</option><option value="trueb">Trüb</option><option value="mittel">Leicht trüb</option></select></label>
+          <label Tiefe<select id="depth"><option value="flach">Flach</option><option value="mittel">Mittlere Tiefe</option><option value="tief">Tief</option></select></label>
+        </div><button class="primary" id="recommendBtn">Köder empfehlen</button><div id="recommendation" class="recommendation empty">Wähle deine Bedingungen und erhalte einen Vorschlag.</div></article>
+        <article class="panel"><h3>🔁 Alternative Köder</h3><div id="alternatives" class="subtle">Nach deiner Empfehlung erscheinen hier Alternativen.</div></article>
+      </section>
+
+      <section class="view" id="view-heatmap">
+        <div class="section-title"><p class="eyebrow">GEWÄSSER ENTDECKEN</p><h2>Angel-Heatmap</h2><p class="subtle">Eine echte Fang-Heatmap benötigt geprüfte, ausreichend dichte Fangmeldungen.</p></div>
+        <div class="three-grid"><article class="panel feature-tile"><div class="feature-icon">🔥</div><h3>Fangaktivität</h3><p>In dieser Version werden keine erfundenen Hotspots angezeigt. Deine eigenen Fangnotizen kannst du im Tagebuch sammeln.</p><span class="tag soft">Datenbasis noch nicht verfügbar</span></article><article class="panel feature-tile"><div class="feature-icon">🗺️</div><h3>Gewässerkarte</h3><p>Suche weltweit nach Orten und Gewässern. Die Karte zeigt geografische Orientierung, nicht automatisch Angelrechte.</p><span class="tag soft">Weltweite Suche</span></article><article class="panel feature-tile"><div class="feature-icon">🌊</div><h3>Tiefen & Zugang</h3><p>Eine verlässliche Tiefenkarte oder bestätigte Uferzugänge sind in dieser Version noch nicht integriert.</p><span class="tag soft">Keine erfundenen Tiefenwerte</span></article></div>
+      </section>
+
+      <section class="view" id="view-zeit">
+        <div class="section-title"><p class="eyebrow">ANGELPLANUNG</p><h2>Beste Angelzeit</h2><p class="subtle">Allgemeine Orientierung – keine Vorhersage für einen garantierten Fang.</p></div>
+        <article class="panel"><div class="time-grid"><div class="time-card"><span>🌅</span><b>Morgen</b><strong>Früher Tagesbeginn</strong><p>Oft eine interessante Zeit, besonders bei ruhigen Bedingungen.</p></div><div class="time-card"><span>🌇</span><b>Abend</b><strong>Vor Sonnenuntergang</strong><p>Kann bei manchen Arten und Gewässern gute Aktivität bringen.</p></div><div class="time-card"><span>☁️</span><b>Wetter</b><strong>Stabilität beobachten</strong><p>Wind, Luftdruck, Temperatur und Wassertrübung mitbeachten.</p></div></div><div class="notice">Tageszeit-Empfehlungen hängen von Fischart, Jahreszeit, Gewässer und lokalen Vorschriften ab.</div></article>
+      </section>
+
+      <section class="view" id="view-koffer">
+        <div class="section-title"><p class="eyebrow">DEINE AUSRÜSTUNG</p><h2>Digitaler Köderkoffer</h2><p class="subtle">Speichere deine Köder direkt auf diesem Gerät.</p></div>
+        <article class="panel"><div class="search-row"><input id="tackleName" placeholder="Ködername, z. B. Gummifisch 7 cm"><select id="tackleType"><option>Gummiköder</option><option>Wobbler</option><option>Blinker</option><option>Spinner</option><option>Fliege</option><option>Sonstiges</option></select><button class="primary" id="addTackle">Hinzufügen</button></div><div id="tackleList" class="tackle-list"></div></article>
+      </section>
+
+      <section class="view" id="view-tagebuch">
+        <div class="section-title"><p class="eyebrow">DEINE ERLEBNISSE</p><h2>Fangtagebuch</h2><p class="subtle">Deine Einträge bleiben zunächst lokal auf diesem Gerät.</p></div>
+        <article class="panel"><div class="form-grid"><label>Fischart<input id="catchSpecies" placeholder="z. B. Egli"></label><label>Gewässer / Ort<input id="catchPlace" placeholder="Ort oder See"></label><label>Datum<input id="catchDate" type="date"></label><label>Länge (cm, optional)<input id="catchLength" type="number" min="0" placeholder="z. B. 25"></label></div><label class="full-label">Notiz<textarea id="catchNote" placeholder="Köder, Wetter, besondere Beobachtung …"></textarea></label><button class="primary" id="saveCatch">Fang speichern</button><div id="catchList" class="catch-list"></div></article>
+      </section>
+
+      <section class="view" id="view-planung">
+        <div class="section-title"><p class="eyebrow">AUSFLUG PLANEN</p><h2>Routenplaner</h2><p class="subtle">Erstelle eine einfache Liste deiner geplanten Angelstopps.</p></div>
+        <article class="panel"><div class="search-row"><input id="stopName" placeholder="Angelplatz oder Treffpunkt"><button class="primary" id="addStop">Stopp hinzufügen</button></div><div id="stopList" class="stop-list"></div><p class="notice">Bitte prüfe Wege, Privatgrundstücke, Schutzgebiete und Zugangsregeln selbst. Die Liste berechnet noch keine sichere Route.</p></article>
+      </section>
+
+      <section class="view" id="view-community">
+        <div class="section-title"><p class="eyebrow">AUSTAUSCH</p><h2>Community</h2><p class="subtle">Lokale Demo-Ansicht – Beiträge werden nicht online veröffentlicht.</p></div>
+        <article class="panel"><div class="search-row"><input id="postText" placeholder="Teile einen Angel-Tipp …"><button class="primary" id="addPost">Beitrag erstellen</button></div><div id="postList" class="post-list"></div></article>
+      </section>
+
+      <section class="view" id="view-konto">
+        <div class="section-title"><p class="eyebrow">PERSÖNLICHES</p><h2>Konto & Einstellungen</h2><p class="subtle">Ein Online-Konto und geräteübergreifende Synchronisierung benötigen eine eigene Supabase-Konfiguration.</p></div>
+        <article class="panel"><h3>☁️ Online-Synchronisierung</h3><p>Trage deine eigene Supabase-Projekt-URL und den öffentlichen anon/publishable key in <code>config.js</code> ein. Verwende niemals einen service_role-Schlüssel im Browser.</p><p class="notice">Da du minderjährig bist, richte externe Konten am besten zusammen mit einer erwachsenen Vertrauensperson ein.</p><h3>Datenschutz</h3><p>Fangtagebuch und Köderkoffer werden ohne eingerichtete Cloud-Synchronisierung nur lokal auf diesem Gerät gespeichert.</p><button class="secondary" id="clearLocal">Lokale Demo-Daten löschen</button></article>
+      </section>
+
+      <footer>SeeScout 3.3 · Smart Fishing · Weltweite Orientierung, lokale Regeln beachten.</footer>
+    </main>
+  </div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script>if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));</script>
+</body>
+</html>
